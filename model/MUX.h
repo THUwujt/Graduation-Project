@@ -26,7 +26,7 @@ namespace model
         sc_out<bool> valid_out;         // 1个输出的valid信号
         sc_out<int> target_column_out;  // 1个输出的列地址
         SC_HAS_PROCESS(MUX);
-        MUX(sc_module_name name, int ID = 0, bool per2bank = false) : sc_module(name), id(ID), per2bank(per2bank)
+        MUX(sc_module_name name, int ID = 0, bool per2bank = true) : sc_module(name), id(ID), per2bank(per2bank)
         {
             SC_THREAD(process_mux);
         }

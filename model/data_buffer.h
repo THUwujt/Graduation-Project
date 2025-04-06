@@ -32,7 +32,7 @@ namespace model
             // 初始化32个FIFO
             for (int i = 0; i < 32; i++)
             {
-                data_fifos[i] = new sc_fifo<int>(16); // 每个FIFO的大小为1
+                data_fifos[i] = new sc_fifo<int>(64 * 8); // 每个FIFO的大小为64
             }
             // 默认初始化数据
             initialize_data();
@@ -43,42 +43,46 @@ namespace model
         // 初始化数据函数
         void initialize_data()
         {
-            // 从文件加载向量数据
-            std::ifstream file("matrix_vector_data.txt");
-            if (!file.is_open())
+            // 反复加载相同的16个vector32遍
+            for (int i = 0; i < 32; i++)
             {
-                std::cerr << "Error: Cannot open matrix_vector_data.txt file" << std::endl;
-                return;
-            }
-
-            std::string line;
-            int line_count = 0;
-
-            // 读取前16行（向量数据）
-            while (line_count < 16 && std::getline(file, line))
-            {
-                // 跳过注释行
-                if (line.empty() || line[0] == '#')
+                // 从文件加载向量数据
+                std::ifstream file("matrix_vector_data.txt");
+                if (!file.is_open())
                 {
-                    continue;
+                    std::cerr << "Error: Cannot open matrix_vector_data.txt file" << std::endl;
+                    return;
                 }
 
-                // 解析向量数据
-                std::istringstream iss(line);
-                int value;
-                int col = 0;
+                std::string line;
+                int line_count = 0;
 
-                while (iss >> value && col < 32)
+                // 读取前16行（向量数据）
+                while (line_count < 16 && std::getline(file, line))
                 {
-                    // 向每个FIFO中写入初始数据
-                    data_fifos[col]->write(value);
-                    col++;
+                    // 跳过注释行
+                    if (line.empty() || line[0] == '#')
+                    {
+                        continue;
+                    }
+
+                    // 解析向量数据
+                    std::istringstream iss(line);
+                    int value;
+                    int col = 0;
+
+                    while (iss >> value && col < 32)
+                    {
+                        // 向每个FIFO中写入初始数据
+                        data_fifos[col]->write(value);
+                        col++;
+                    }
+
+                    line_count++;
                 }
 
-                line_count++;
+                file.close();
             }
-
-            file.close();
         }
 
         // 析构函数：释放动态分配的FIFO内存

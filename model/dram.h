@@ -30,12 +30,11 @@ namespace model
         sc_out<int> target_column_out;
 
         // 追踪valid_out信号
-        // !sc_signal<bool> valid_out_signal; // 可以直接追踪sc_out！
 
         Bank(sc_module_name name, int ID = 0) : sc_module(name), id(ID), current_row(0)
         {
-            // 初始化 4x32x32 的三维存储器
-            memory.resize(4, vector<vector<int>>(32, vector<int>(32, 0)));
+            // 初始化 32x32x32 的三维存储器
+            memory.resize(32, vector<vector<int>>(32, vector<int>(32, 0)));
             initialize();
             SC_THREAD(process_command);
         }
@@ -49,11 +48,11 @@ namespace model
                 sc_core::sc_trace(g_trace, valid_out, trace_name);
                 // 追踪 valid_out 信号
                 // 追踪输出的data
-                for (int i = 0; i < 32; i++)
-                {
-                    string data_trace_name = "bank" + to_string(id) + "_data_out_" + to_string(i);
-                    sc_core::sc_trace(g_trace, data_out[i], data_trace_name);
-                }
+                // for (int i = 0; i < 32; i++)
+                // {
+                //     string data_trace_name = "bank" + to_string(id) + "_data_out_" + to_string(i);
+                //     sc_core::sc_trace(g_trace, data_out[i], data_trace_name);
+                // }
             }
         }
 
@@ -69,21 +68,10 @@ namespace model
         int id;
         int used_cycle = 0;     // 使用周期数
         float utility_rate = 0; // 带宽利用率
-        bool per2bank = false;
+        bool per2bank = true;
 
         void initialize()
         {
-            // 初始化所有bank的memory为0
-            for (int i = 0; i < 4; ++i)
-            {
-                for (int j = 0; j < 32; ++j)
-                {
-                    for (int k = 0; k < 32; ++k)
-                    {
-                        memory[i][j][k] = 0;
-                    }
-                }
-            }
 
             // 从文件加载矩阵数据
             std::ifstream file("matrix_vector_data.txt");
@@ -252,6 +240,31 @@ namespace model
             }
 
             file.close();
+            // 初始化其余部分
+            for (int i = 1; i < 4; ++i)
+            {
+                for (int j = 0; j < 32; ++j)
+                {
+                    for (int k = 0; k < 32; ++k)
+                    {
+                        memory[i][j][k] = memory[0][j][k] + i;
+                    }
+                }
+            }
+            // 把上面的数据重复7次就是剩下的初始化数据
+            for (int i = 1; i < 8; ++i)
+            {
+                for (int r = 0; r < 4; ++r)
+                {
+                    for (int j = 0; j < 32; ++j)
+                    {
+                        for (int k = 0; k < 32; ++k)
+                        {
+                            memory[i * 4 + r][j][k] = memory[r][j][k];
+                        }
+                    }
+                }
+            }
         }
 
         void process_command()
@@ -266,8 +279,8 @@ namespace model
                 }
                 int cmd = cmd_in.read();
                 int addr = addr_in.read();
-                int row = (addr >> 5) & 0x3; // 取高 2 位作为 row (0-7)
-                int column = addr & 0x1F;    // 取低 5 位作为 column (0-31)
+                int row = addr >> 5;      // 取高位作为 row
+                int column = addr & 0x1F; // 取低 5 位作为 column (0-31)
 
                 switch (cmd)
                 {

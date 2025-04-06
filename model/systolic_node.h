@@ -54,15 +54,15 @@ namespace model
             {
                 // 使用row和column生成唯一的追踪信号名
                 string trace_name_left = "node_valid_in_left_" + to_string(row) + "_" + to_string(column);
-                string trace_name_up = "node_valid_in_up_" + to_string(row) + "_" + to_string(column);
+                // string trace_name_up = "node_valid_in_up_" + to_string(row) + "_" + to_string(column);
                 sc_core::sc_trace(g_trace, valid_in_left, trace_name_left);
-                sc_core::sc_trace(g_trace, valid_in_up, trace_name_up);
+                // sc_core::sc_trace(g_trace, valid_in_up, trace_name_up);
                 // trace weight
                 string trace_name_weight = "node_weight_" + to_string(row) + "_" + to_string(column);
                 sc_core::sc_trace(g_trace, weight, trace_name_weight);
                 // trace data_in_left
-                string trace_name_data_in_left = "node_data_in_left_" + to_string(row) + "_" + to_string(column);
-                sc_core::sc_trace(g_trace, data_in_left, trace_name_data_in_left);
+                // string trace_name_data_in_left = "node_data_in_left_" + to_string(row) + "_" + to_string(column);
+                // sc_core::sc_trace(g_trace, data_in_left, trace_name_data_in_left);
             }
         }
 
