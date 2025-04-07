@@ -141,7 +141,7 @@ int sc_main(int argc, char *argv[])
         }
         // 对比理论结果和仿真结果
         bool all_correct = true;
-        for (int vec_idx = 64 * 7 + 56; vec_idx < 64 * 8; vec_idx++)
+        for (int vec_idx = 64 * 6; vec_idx < 64 * 8; vec_idx++)
         {
             cout << "Checking Vector " << vec_idx << ": ";
             for (int i = 0; i < 32; i++)

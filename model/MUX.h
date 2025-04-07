@@ -120,6 +120,12 @@ namespace model
                 // 追踪target_column_out
                 trace_name = "MUXed_bank_target_column_out_" + to_string(id);
                 sc_core::sc_trace(g_trace, target_column_out, trace_name);
+                // trace target_column_in
+                for (int i = 0; i < 2; i++)
+                {
+                    trace_name = "MUXed_bank_target_column_in_" + to_string(id) + "_" + to_string(i);
+                    sc_core::sc_trace(g_trace, target_column_in[i], trace_name);
+                }
             }
         }
 

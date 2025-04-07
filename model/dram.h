@@ -44,15 +44,18 @@ namespace model
             if (g_trace) // 检查 g_trace 是否已初始化
             {
                 // 使用id生成唯一的追踪信号名
+                // 追踪 valid_out 信号
                 string trace_name = "bank" + to_string(id) + "_valid_out";
                 sc_core::sc_trace(g_trace, valid_out, trace_name);
-                // 追踪 valid_out 信号
-                // 追踪输出的data
-                // for (int i = 0; i < 32; i++)
-                // {
-                //     string data_trace_name = "bank" + to_string(id) + "_data_out_" + to_string(i);
-                //     sc_core::sc_trace(g_trace, data_out[i], data_trace_name);
-                // }
+                // trace valid in
+                string valid_in_trace_name = "bank" + to_string(id) + "_valid_in";
+                sc_core::sc_trace(g_trace, valid_in, valid_in_trace_name);
+                // trace target_column_out
+                string target_column_trace_name = "bank" + to_string(id) + "_target_column_out";
+                sc_core::sc_trace(g_trace, target_column_out, target_column_trace_name);
+                // trace target_column_in
+                string target_column_in_trace_name = "bank" + to_string(id) + "_target_column_in";
+                sc_core::sc_trace(g_trace, target_column_in, target_column_in_trace_name);
             }
         }
 
@@ -294,20 +297,29 @@ namespace model
 
                 case 1:
                     // 读取数据命令
-                    if (row != current_row)
+                    // 检查越界
+                    if (row >= 32 || column >= 32)
                     {
                         for (int i = 0; i < 32; i++)
                         {
                             valid_out.write(false);
                         }
-                        cerr << "Error: Row address mismatch!" << endl;
+                        cerr << "Error: Row or column out of bounds!" << endl;
                         return;
                     }
+                    //! 暂时先取消这个检查，后面需要的时候再恢复
+                    // if (row != current_row)
+                    // {
+                    //     for (int i = 0; i < 32; i++)
+                    //     {
+                    //         valid_out.write(false);
+                    //     }
+                    //     cerr << "Error: Row address mismatch!" << endl;
+                    //     return;
+                    // }
                     for (int i = 0; i < 32; i++)
                     {
                         data_out[i].write(memory[row][column][i]);
-                        //! 小心用完一行数据但是在干等的时间！
-                        // 这个在control里面解决了
                     }
                     valid_out.write(true);
                     used_cycle++;
